@@ -76,6 +76,7 @@ else:
     st.subheader("🧪 AI Model Prediction")
 
     # ===== Predict Button =====
+    # ===== Predict Button =====
     if mel_path.exists():
         img = Image.open(mel_path).convert("RGB")
         transform = transforms.Compose([
@@ -85,13 +86,13 @@ else:
         img_tensor = transform(img).unsqueeze(0)
         valve_idx_tensor = torch.tensor([valve_to_idx[selected_class]], dtype=torch.long)
 
-        if st.button("Predict Now 🚀"):
-            with torch.no_grad():
-                output = model(img_tensor, valve_idx_tensor)
-                prob = torch.sigmoid(output).item()
+    if st.button("Predict Now 🚀"):
+        with torch.no_grad():
+            output = model(img_tensor, valve_idx_tensor)
+            prob = torch.sigmoid(output).item()
 
-            st.success(f"✅ Regurgitation Probability: {prob*100:.2f}%")
-            if prob > 0.5:
-                st.error("🔬 Regurgitation")
-            else:
-                st.success("✅ Non-Regurgitation")
+        st.success(f"✅ Regurgitation Probability: {prob*100:.2f}%")
+        if prob > 0.5:
+            st.error("🔬 Regurgitation")
+        else:
+            st.success("✅ Non-Regurgitation")
