@@ -10,15 +10,18 @@ import torch
 from PIL import Image
 from torchvision import transforms
 
+# ===== CONFIG =====
 DATA_DIR = Path("Sample Sound")
 CLASSES = ["mitral", "aortic", "tricuspid", "pulmonary"]
 valve_to_idx = {"mitral": 0, "aortic": 1, "tricuspid": 2, "pulmonary": 3}
 
+# Load model
 model = load_model()
 
 st.set_page_config(page_title="Heart Valve AI Production", layout="wide")
 st.title("💓 Heart Valve AI Demo (Full Production Version)")
 
+# Select valve class
 selected_class = st.sidebar.selectbox("เลือก Valve Class:", CLASSES)
 class_path = DATA_DIR / selected_class
 wav_files = sorted(list(class_path.glob("*.wav")))
@@ -32,6 +35,7 @@ else:
     wav_path = class_path / selected_file
     y, sr = librosa.load(wav_path, sr=None)
 
+    # Plot Audio and Images
     col1, col2 = st.columns(2)
 
     with col1:
@@ -52,21 +56,23 @@ else:
     st.divider()
     st.subheader("🧪 AI Model Prediction")
 
+    # Add Predict button
     if mel_path.exists():
-        img = Image.open(mel_path).convert("RGB")
-        transform = transforms.Compose([
-            transforms.Resize((224, 224)),
-            transforms.ToTensor()
-        ])
-        img_tensor = transform(img).unsqueeze(0)
-        valve_idx_tensor = torch.tensor([valve_to_idx[selected_class]], dtype=torch.long)
+        if st.button("Predict Now 🚀"):
+            img = Image.open(mel_path).convert("RGB")
+            transform = transforms.Compose([
+                transforms.Resize((224, 224)),
+                transforms.ToTensor()
+            ])
+            img_tensor = transform(img).unsqueeze(0)
+            valve_idx_tensor = torch.tensor([valve_to_idx[selected_class]], dtype=torch.long)
 
-        with torch.no_grad():
-            output = model(img_tensor, valve_idx_tensor)
-            prob = torch.sigmoid(output).item()
+            with torch.no_grad():
+                output = model(img_tensor, valve_idx_tensor)
+                prob = torch.sigmoid(output).item()
 
-        st.success(f"✅ Regurgitation Probability: {prob*100:.2f}%")
-        if prob > 0.5:
-            st.error("🔬 Regurgitation")
-        else:
-            st.success("✅ Non-Regurgitation")
+            st.success(f"✅ Regurgitation Probability: {prob*100:.2f}%")
+            if prob > 0.5:
+                st.error("🔬 Regurgitation Detected")
+            else:
+                st.success("✅ No Regurgitation Detected")
