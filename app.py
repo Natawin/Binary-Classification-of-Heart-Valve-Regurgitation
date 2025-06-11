@@ -10,21 +10,16 @@ import torch
 from PIL import Image
 from torchvision import transforms
 
-# ===== CONFIG =====
 DATA_DIR = Path("Sample Sound")
-CLASSES = ["mitral", "aortic", "tricuspid", "pulmonary", "normal"]
-valve_to_idx = {"mitral": 0, "aortic": 1, "tricuspid": 2, "pulmonary": 3, "normal": 4}
+CLASSES = ["mitral", "aortic", "tricuspid", "pulmonary"]
+valve_to_idx = {"mitral": 0, "aortic": 1, "tricuspid": 2, "pulmonary": 3}
 
-# Load model
 model = load_model()
 
 st.set_page_config(page_title="Heart Valve AI Production", layout="wide")
 st.title("💓 Heart Valve AI Demo (Full Production Version)")
 
-# ===== Class selector =====
 selected_class = st.sidebar.selectbox("เลือก Valve Class:", CLASSES)
-
-# ===== List sample files =====
 class_path = DATA_DIR / selected_class
 wav_files = sorted(list(class_path.glob("*.wav")))
 
@@ -57,7 +52,6 @@ else:
     st.divider()
     st.subheader("🧪 AI Model Prediction")
 
-    # === Predict from Spectrogram ===
     if mel_path.exists():
         img = Image.open(mel_path).convert("RGB")
         transform = transforms.Compose([
