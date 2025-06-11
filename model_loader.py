@@ -4,8 +4,8 @@ import torch
 from model_class import MultiValveCNN
 
 # ใส่ File ID ของ Google Drive ตรงนี้
-GOOGLE_DRIVE_FILE_ID = '107ruYjCflJ7VQG8q5pHqIYsTnu4gEer9'
-MODEL_FILENAME = 'Mel-Spectrogram_Data_Pretrain_state.pth'
+GOOGLE_DRIVE_FILE_ID = '/1tuXXWvLePLU2toKUstmV9xWWYDY6_t8D'
+MODEL_FILENAME = 'Mel-Spectrogram_Data_NotPretrain_state.pth'
 
 def download_model():
     if not os.path.exists(MODEL_FILENAME):
