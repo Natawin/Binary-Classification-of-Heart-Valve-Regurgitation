@@ -1,54 +1,64 @@
 import streamlit as st
-import torch
-from torchvision import transforms
-from PIL import Image
-from model_loader import load_model
+import os
+import librosa
+import librosa.display
+import matplotlib.pyplot as plt
+import numpy as np
+from pathlib import Path
 
-# โหลดโมเดล
-@st.cache_resource
-def get_model():
-    return load_model()
+# ===== CONFIG =====
+DATA_DIR = Path("Sample Sound")
+CLASSES = ["mitral", "aortic", "tricuspid", "pulmonary", "normal"]
 
-model = get_model()
+st.set_page_config(page_title="Heart Valve Demo", layout="wide")
+st.title("💓 Heart Valve AI Demo (Full Production Version)")
 
-# Valve Mapping
-valve_to_idx = {"mitral": 0, "aortic": 1, "tricuspid": 2, "pulmonary": 3}
-idx_to_valve = {v: k for k, v in valve_to_idx.items()}
+# ===== Class selector =====
+selected_class = st.sidebar.selectbox("เลือก Valve Class:", CLASSES)
 
-# สร้าง UI
-st.title("Heart Valve AI Demo")
+# ===== List sample files =====
+class_path = DATA_DIR / selected_class
+wav_files = sorted(list(class_path.glob("*.wav")))
 
-st.write("🎯 Upload Spectrogram Image for Prediction")
+if len(wav_files) == 0:
+    st.warning("ไม่มีไฟล์สำหรับ class นี้")
+else:
+    filenames = [f.name for f in wav_files]
+    selected_file = st.selectbox("เลือกไฟล์:", filenames)
 
-# Upload Image
-uploaded_file = st.file_uploader("Upload PNG Image", type=["png", "jpg", "jpeg"])
+    wav_path = class_path / selected_file
+    y, sr = librosa.load(wav_path, sr=None)
 
-# Valve Selector
-valve_choice = st.selectbox("Select Valve", list(valve_to_idx.keys()))
+    col1, col2 = st.columns(2)
 
-# ถ้ามีไฟล์
-if uploaded_file is not None:
-    image = Image.open(uploaded_file).convert("RGB")
-    st.image(image, caption="Uploaded Image", width=300)
+    with col1:
+        st.subheader("🎧 Audio Playback")
+        st.audio(wav_path)
 
-    # ปุ่ม Predict
-    if st.button("Predict"):
-        # Image Transform
-        transform = transforms.Compose([
-            transforms.Resize((224, 224)),
-            transforms.ToTensor(),
-        ])
-        input_tensor = transform(image).unsqueeze(0)  # [1, 3, 224, 224]
+        st.subheader("🩺 Time Domain Plot")
+        td_path = wav_path.with_suffix("").with_name(wav_path.stem.replace(".wav", "_td.png"))
+        if td_path.exists():
+            st.image(td_path)
+        else:
+            # Plot Time-Domain on-the-fly (backup)
+            time = np.arange(len(y)) / sr
+            fig_td, ax_td = plt.subplots(figsize=(10, 3))
+            ax_td.plot(time, y, color='tab:blue')
+            ax_td.set_xlabel("Time (s)")
+            ax_td.set_ylabel("Amplitude")
+            ax_td.grid(True)
+            st.pyplot(fig_td)
 
-        # Valve Index
-        valve_idx = torch.tensor([valve_to_idx[valve_choice]])
-
-        # Predict
-        with torch.no_grad():
-            output = model(input_tensor, valve_idx)
-            pred = torch.sigmoid(output).item()
-            pred_label = 1 if pred >= 0.5 else 0
-
-        # Show Result
-        st.write(f"**Prediction:** {'Abnormal (Regurgitation)' if pred_label == 1 else 'Normal'}")
-        st.write(f"**Confidence:** {pred:.2f}")
+    with col2:
+        st.subheader("🎛 Mel Spectrogram")
+        mel_path = wav_path.with_suffix("").with_name(wav_path.stem.replace(".wav", "_mel.png"))
+        if mel_path.exists():
+            st.image(mel_path)
+        else:
+            # Plot Spectrogram on-the-fly (backup)
+            S = librosa.feature.melspectrogram(y=y, sr=sr, n_fft=1024, hop_length=256, n_mels=128)
+            S_dB = librosa.power_to_db(S, ref=np.max)
+            fig_mel, ax_mel = plt.subplots(figsize=(10, 3))
+            img = librosa.display.specshow(S_dB, sr=sr, hop_length=256, cmap='viridis', ax=ax_mel)
+            fig_mel.colorbar(img, ax=ax_mel, format="%+2.0f dB")
+            st.pyplot(fig_mel)
