@@ -1,21 +1,29 @@
 import os
 import gdown
 import torch
+from model_class import MultiValveCNN
 
-# ตั้งค่า file_id จาก Google Drive ที่เราเตรียมไว้
-GOOGLE_DRIVE_FILE_ID = '107ruYjCflJ7VQG8q5pHqIYsTnu4gEer9'
-MODEL_FILENAME = 'model.pt'
+# ใส่ File ID ของ Google Drive ตรงนี้
+GOOGLE_DRIVE_FILE_ID = 'ใส่ File ID ของคุณตรงนี้'
+MODEL_FILENAME = 'Mel-Spectrogram_Data_Pretrain_state.pth'
 
 def download_model():
     if not os.path.exists(MODEL_FILENAME):
         print("Downloading model from Google Drive...")
-        url = f'https://drive.google.com/uc?id=107ruYjCflJ7VQG8q5pHqIYsTnu4gEer9'
+        url = f'https://drive.google.com/uc?id={GOOGLE_DRIVE_FILE_ID}'
         gdown.download(url, MODEL_FILENAME, quiet=False)
     else:
         print("Model file already exists locally.")
 
 def load_model():
     download_model()
-    model = torch.load(MODEL_FILENAME, map_location=torch.device('cpu'))  # บน Streamlit Cloud มักใช้ CPU
-    model.eval()  # ใส่ eval mode
+
+    # สร้าง model object เปล่าก่อน
+    model = MultiValveCNN()
+
+    # โหลด state_dict เข้าไปใน model
+    state_dict = torch.load(MODEL_FILENAME, map_location=torch.device('cpu'))
+    model.load_state_dict(state_dict)
+    model.eval()
+
     return model
