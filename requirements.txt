@@ -1,10 +1,10 @@
 streamlit
 torch
 torchvision
-pandas
-numpy
-matplotlib
+gdown
 librosa
+matplotlib
+scipy
 soundfile
 tqdm
-gdown
+Pillow
