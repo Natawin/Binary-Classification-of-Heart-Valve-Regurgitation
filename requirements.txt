@@ -1,10 +1,7 @@
-streamlit
 torch
 torchvision
-gdown
+streamlit
 librosa
 matplotlib
-scipy
-soundfile
-tqdm
-Pillow
+opencv-python
+gdown
