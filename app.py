@@ -91,15 +91,23 @@ else:
 
     # ===== Predict Button =====
     if st.button("Predict Now 🚀"):
-        if img_tensor is not None and valve_idx_tensor is not None:
-            with torch.no_grad():
-                output = model(img_tensor, valve_idx_tensor)
-                prob = torch.sigmoid(output).item()
+    if img_tensor is not None and valve_idx_tensor is not None:
+        
+        # 🟢 Debug จุดสำคัญ!
+        st.write("===== INPUT DEBUG =====")
+        st.write(f"img_tensor shape: {img_tensor.shape}")
+        st.write(f"valve_idx_tensor: {valve_idx_tensor}")
+        st.write(f"valve_idx_tensor dtype: {valve_idx_tensor.dtype}")
 
-            st.success(f"✅ Regurgitation Probability: {prob*100:.2f}%")
-            if prob > 0.5:
-                st.error("🔬 Regurgitation")
-            else:
-                st.success("✅ Non-Regurgitation")
+        with torch.no_grad():
+            output = model(img_tensor, valve_idx_tensor)
+            prob = torch.sigmoid(output).item()
+
+        st.success(f"✅ Regurgitation Probability: {prob*100:.2f}%")
+        if prob > 0.5:
+            st.error("🔬 Regurgitation")
         else:
-            st.warning("ยังไม่พบไฟล์ Mel-Spectrogram ที่จะใช้")
+            st.success("✅ Non-Regurgitation")
+    else:
+        st.warning("ยังไม่พบไฟล์ Mel-Spectrogram ที่จะใช้")
+
