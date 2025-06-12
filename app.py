@@ -75,8 +75,10 @@ else:
     st.divider()
     st.subheader("🧪 AI Model Prediction")
 
-    # ===== Predict Button =====
-    # ===== Predict Button =====
+    # ===== Prepare input for prediction =====
+    img_tensor = None
+    valve_idx_tensor = None
+
     if mel_path.exists():
         img = Image.open(mel_path).convert("RGB")
         transform = transforms.Compose([
@@ -86,13 +88,17 @@ else:
         img_tensor = transform(img).unsqueeze(0)
         valve_idx_tensor = torch.tensor([valve_to_idx[selected_class]], dtype=torch.long)
 
+    # ===== Predict Button =====
     if st.button("Predict Now 🚀"):
-        with torch.no_grad():
-            output = model(img_tensor, valve_idx_tensor)
-            prob = torch.sigmoid(output).item()
+        if img_tensor is not None and valve_idx_tensor is not None:
+            with torch.no_grad():
+                output = model(img_tensor, valve_idx_tensor)
+                prob = torch.sigmoid(output).item()
 
-        st.success(f"✅ Regurgitation Probability: {prob*100:.2f}%")
-        if prob > 0.5:
-            st.error("🔬 Regurgitation")
+            st.success(f"✅ Regurgitation Probability: {prob*100:.2f}%")
+            if prob > 0.5:
+                st.error("🔬 Regurgitation")
+            else:
+                st.success("✅ Non-Regurgitation")
         else:
-            st.success("✅ Non-Regurgitation")
+            st.warning("ยังไม่พบไฟล์ Mel-Spectrogram ที่จะใช้
