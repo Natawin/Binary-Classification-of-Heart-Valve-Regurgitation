@@ -55,6 +55,6 @@ else:
             prob = torch.sigmoid(output).item()
 
         if prob > 0.5:
-            st.error(f"normal")
+            st.error(f"❌ Abnormal")
         else:
             st.success(f"✅ Normal")
