@@ -1,38 +1,37 @@
 import librosa
 import numpy as np
 from PIL import Image
-import scipy.ndimage
 import matplotlib.pyplot as plt
+import cv2
 import io
-from utils import generate_mel_tensor, generate_mel_display
 
 def generate_mel_tensor(wav_path):
     y, sr = librosa.load(wav_path, sr=None)
     S = librosa.feature.melspectrogram(y=y, sr=sr, n_fft=1024, hop_length=256, n_mels=128)
     S_dB = librosa.power_to_db(S, ref=np.max)
-    S_norm = (S_dB + 80) / 80  # Normalize to 0-1
+    S_norm = (S_dB + 80) / 80
 
-    zoom_factor = (224 / S_norm.shape[0], 224 / S_norm.shape[1])
-    resized = scipy.ndimage.zoom(S_norm, zoom_factor, order=3)
-    image = (resized * 255).astype(np.uint8)
+    # Resize & Convert → 3-channel (แค่ duplicate 3 ช่อง)
+    resized = cv2.resize(S_norm, (224, 224), interpolation=cv2.INTER_CUBIC)
+    stacked = np.stack([resized]*3, axis=-1)
+    stacked = (stacked * 255).astype(np.uint8)
+    image = Image.fromarray(stacked)
 
-    # Convert เป็น 3 channel (RGB) สำหรับ model
-    image_rgb = np.stack([resized] * 3, axis=-1)
-    image_rgb = (image_rgb * 255).astype(np.uint8)
-    return Image.fromarray(image_rgb), resized
+    return image, S_norm
 
 def generate_mel_display(wav_path):
     y, sr = librosa.load(wav_path, sr=None)
     S = librosa.feature.melspectrogram(y=y, sr=sr, n_fft=1024, hop_length=256, n_mels=128)
     S_dB = librosa.power_to_db(S, ref=np.max)
 
-    plt.figure(figsize=(4, 4))
-    librosa.display.specshow(S_dB, sr=sr, cmap='magma')
+    plt.figure(figsize=(6, 4))
+    librosa.display.specshow(S_dB, sr=sr, hop_length=256, x_axis='time', y_axis='mel', cmap='magma')
     plt.axis('off')
 
     buf = io.BytesIO()
     plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0)
-    plt.close()
     buf.seek(0)
-    image = Image.open(buf)
-    return image
+    plt.close()
+
+    display_image = Image.open(buf)
+    return display_image
