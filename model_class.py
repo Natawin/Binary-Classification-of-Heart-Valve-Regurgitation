@@ -4,9 +4,9 @@ import torch
 class MultiValveCNN(nn.Module):
     def __init__(self, num_valves=4):
         super().__init__()
-        self.embedding = nn.Embedding(num_valves, 16)  # valve → vector
+        self.embedding = nn.Embedding(num_valves, 16)
         self.cnn = nn.Sequential(
-            nn.Conv2d(3, 16, 3, padding=1),  # Change input channels to 3 (RGB)
+            nn.Conv2d(3, 16, 3, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(2),
             nn.Conv2d(16, 32, 3, padding=1),
