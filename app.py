@@ -11,7 +11,8 @@ from PIL import Image
 from torchvision import transforms
 
 # ===== CONFIG =====
-DATA_DIR = Path("Sample Sound")
+BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = BASE_DIR / "Sample Sound"
 CLASSES = ["mitral", "aortic", "tricuspid", "pulmonary"]
 valve_to_idx = {"mitral": 0, "aortic": 1, "tricuspid": 2, "pulmonary": 3}
 
