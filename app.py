@@ -1,52 +1,65 @@
 import streamlit as st
 import os
+import librosa
+import numpy as np
 import torch
 from torchvision import transforms
+from PIL import Image
 from pathlib import Path
 from model_loader import load_model
-from utils import generate_mel_image_for_model, plot_mel_spectrogram
+from utils import generate_mel_image
 
-# CONFIG
+# ==== CONFIG ====
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "Sample Sound"
 CLASSES = ["mitral", "aortic", "tricuspid", "pulmonary"]
 valve_to_idx = {v: i for i, v in enumerate(CLASSES)}
 
+# Load model
 model = load_model()
 
-st.set_page_config(page_title="Heart Valve AI Production (Gdown Build)", layout="wide")
-st.title("❤️ Heart Valve AI Production (Gdown Build)")
+# Streamlit UI
+st.set_page_config(page_title="Heart Valve AI Production", layout="wide")
+st.title("💓 Heart Valve AI Production")
 
+# Select Valve Class
 selected_class = st.sidebar.selectbox("เลือก Valve Class:", CLASSES)
-class_path = DATA_DIR / selected_class
 
-# เลือก Normal / Abnormal
-sub_labels = ["Normal", "Abnormal"]
-selected_label = st.sidebar.selectbox("เลือกรูปแบบ:", sub_labels)
-label_path = class_path / selected_label
+# Load files
+normal_dir = DATA_DIR / selected_class / "Normal"
+abnormal_dir = DATA_DIR / selected_class / "Abnormal"
+wav_files = []
 
-wav_files = sorted([f for f in label_path.glob("*.wav")])
+for d in [normal_dir, abnormal_dir]:
+    if d.exists():
+        wav_files += list(d.glob("*.wav"))
 
 if len(wav_files) == 0:
-    st.warning("ไม่มีไฟล์ wav ใน class นี้")
+    st.warning("ไม่พบไฟล์ wav ใน class นี้")
 else:
-    filenames = [f.name for f in wav_files]
+    filenames = [str(f.relative_to(DATA_DIR)) for f in wav_files]
     selected_file = st.selectbox("เลือกไฟล์:", filenames)
-    wav_path = label_path / selected_file
 
-    # Display audio
-    st.audio(str(wav_path))
+    wav_path = DATA_DIR / selected_file
+    y, sr = librosa.load(wav_path, sr=None)
 
-    # Show Mel-Spectrogram (for UI)
-    fig = plot_mel_spectrogram(wav_path)
-    st.pyplot(fig)
+    # Plot Time Domain
+    st.subheader("🩺 Time Domain")
+    st.line_chart(y)
 
-    # Prepare input for model (Grayscale)
-    mel_image = generate_mel_image_for_model(wav_path)
+    # Generate Mel Spectrogram
+    mel_image = generate_mel_image(wav_path)
+    st.subheader("🎛 Mel Spectrogram")
+    st.image(mel_image)
+
+    # Transform image for model
     transform = transforms.Compose([
+        transforms.Resize((224, 224)),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225])
     ])
+
     img_tensor = transform(mel_image).unsqueeze(0)
     valve_idx_tensor = torch.tensor([valve_to_idx[selected_class]], dtype=torch.long)
 
@@ -55,7 +68,7 @@ else:
             output = model(img_tensor, valve_idx_tensor)
             prob = torch.sigmoid(output).item()
 
-        if prob > 0.9:
-            st.error("❌ Abnormal")
+        if prob > 0.5:
+            st.error("🔬 Abnormal (มีโอกาสเกิด Regurgitation)")
         else:
-            st.success("✅ Normal")
+            st.success("✅ Normal (ไม่พบความผิดปกติ)")
