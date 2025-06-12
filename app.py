@@ -101,4 +101,4 @@ else:
             else:
                 st.success("✅ Non-Regurgitation")
         else:
-            st.warning("ยังไม่พบไฟล์ Mel-Spectrogram ที่จะใช้
+            st.warning("ยังไม่พบไฟล์ Mel-Spectrogram ที่จะใช้")
