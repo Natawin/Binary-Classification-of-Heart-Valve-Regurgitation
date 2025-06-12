@@ -4,7 +4,7 @@ import torch
 from torchvision import transforms
 from pathlib import Path
 from model_loader import load_model
-from utils import generate_mel_image
+from utils import generate_mel_image_for_model, plot_mel_spectrogram
 
 # CONFIG
 BASE_DIR = Path(__file__).resolve().parent
@@ -20,7 +20,7 @@ st.title("❤️ Heart Valve AI Production (Gdown Build)")
 selected_class = st.sidebar.selectbox("เลือก Valve Class:", CLASSES)
 class_path = DATA_DIR / selected_class
 
-#  เลือก label Normal / Abnormal
+# เลือก Normal / Abnormal
 sub_labels = ["Normal", "Abnormal"]
 selected_label = st.sidebar.selectbox("เลือกรูปแบบ:", sub_labels)
 label_path = class_path / selected_label
@@ -37,11 +37,12 @@ else:
     # Display audio
     st.audio(str(wav_path))
 
-    # Generate Mel
-    mel_image = generate_mel_image(wav_path)
-    st.image(mel_image, caption="Mel-Spectrogram")
+    # Show Mel-Spectrogram (for UI)
+    fig = plot_mel_spectrogram(wav_path)
+    st.pyplot(fig)
 
-    # Prepare model input
+    # Prepare input for model (Grayscale)
+    mel_image = generate_mel_image_for_model(wav_path)
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
@@ -55,6 +56,6 @@ else:
             prob = torch.sigmoid(output).item()
 
         if prob > 0.5:
-            st.error(f"❌ Abnormal")
+            st.error("❌ Abnormal")
         else:
-            st.success(f"✅ Normal")
+            st.success("✅ Normal")
