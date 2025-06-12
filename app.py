@@ -6,7 +6,7 @@ from PIL import Image
 from pathlib import Path
 import streamlit as st
 from model_loader import load_model
-from utils import generate_mel_image
+from utils import generate_mel_tensor, generate_mel_display
 
 # ===== CONFIG =====
 BASE_DIR = Path(__file__).resolve().parent
@@ -42,8 +42,9 @@ else:
     selected_file = st.selectbox("เลือกไฟล์:", filenames)
     file_path = dict(all_files)[selected_file]
 
-    # Generate Mel Spectrogram (แบบ real-time)
-    mel_image = generate_mel_image(file_path)
+    # Generate สำหรับ Model (Grayscale 3 channel) และ สำหรับ Display (Color)
+    mel_image_rgb, mel_array = generate_mel_tensor(file_path)
+    mel_display_image = generate_mel_display(file_path)
 
     # Plot
     col1, col2 = st.columns(2)
@@ -54,7 +55,7 @@ else:
 
     with col2:
         st.subheader("🎛 Mel Spectrogram")
-        st.image(mel_image)
+        st.image(mel_display_image)
 
     st.divider()
     st.subheader("🧪 AI Prediction")
@@ -67,7 +68,7 @@ else:
                              std=[0.229, 0.224, 0.225])
     ])
 
-    img_tensor = transform(mel_image).unsqueeze(0)
+    img_tensor = transform(mel_image_rgb).unsqueeze(0)
     valve_tensor = torch.tensor([valve_to_idx[selected_class]], dtype=torch.long)
 
     if st.button("Predict Now 🚀"):
