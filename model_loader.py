@@ -16,6 +16,13 @@ def load_model():
     download_model()
     model = MultiValveCNN()
     state_dict = torch.load(MODEL_FILENAME, map_location='cpu')
+
+    # 👇 Ultimate Debug ตรงนี้
+    print("===== State Dict Loaded =====")
+    for k, v in state_dict.items():
+        print(f"{k}: {v.shape}")
+
     model.load_state_dict(state_dict)
     model.eval()
     return model
+
