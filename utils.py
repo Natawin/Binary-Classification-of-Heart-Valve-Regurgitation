@@ -4,8 +4,8 @@ from PIL import Image
 import scipy.ndimage
 import matplotlib.pyplot as plt
 import io
+from utils import generate_mel_tensor, generate_mel_display
 
-# ตัวสร้าง Input สำหรับ Model (Grayscale)
 def generate_mel_tensor(wav_path):
     y, sr = librosa.load(wav_path, sr=None)
     S = librosa.feature.melspectrogram(y=y, sr=sr, n_fft=1024, hop_length=256, n_mels=128)
@@ -21,7 +21,6 @@ def generate_mel_tensor(wav_path):
     image_rgb = (image_rgb * 255).astype(np.uint8)
     return Image.fromarray(image_rgb), resized
 
-# ตัวสร้างรูปสีสำหรับโชว์
 def generate_mel_display(wav_path):
     y, sr = librosa.load(wav_path, sr=None)
     S = librosa.feature.melspectrogram(y=y, sr=sr, n_fft=1024, hop_length=256, n_mels=128)
