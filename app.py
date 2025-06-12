@@ -68,7 +68,8 @@ else:
     mel_image = generate_mel_image(wav_path)
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
-        transforms.ToTensor()
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
     img_tensor = transform(mel_image).unsqueeze(0)
     valve_idx_tensor = torch.tensor([valve_to_idx[selected_class]], dtype=torch.long)
