@@ -17,12 +17,18 @@ def load_model():
     model = MultiValveCNN()
     state_dict = torch.load(MODEL_FILENAME, map_location='cpu')
 
-    # 👇 Ultimate Debug ตรงนี้
-    print("===== State Dict Loaded =====")
+    # Ultimate Debug
+    debug_msg = []
     for k, v in state_dict.items():
-        print(f"{k}: {v.shape}")
+        debug_msg.append(f"{k}: {v.shape}")
+
+    # แสดงใน Streamlit Log (ไม่ใช่แค่ใน console)
+    st.write("===== State Dict Loaded =====")
+    for msg in debug_msg:
+        st.write(msg)
 
     model.load_state_dict(state_dict)
     model.eval()
     return model
+
 
