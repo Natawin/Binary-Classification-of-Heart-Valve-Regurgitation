@@ -62,8 +62,8 @@ else:
     # ===== Mel-Spectrogram =====
     with col2:
         st.subheader("🎛 Mel Spectrogram")
-        mel_path = wav_path.with_suffix("").with_name(wav_path.stem.replace(".wav", "_mel.png"))
-        if mel_path.exists():
+        mel_path = wav_path.with_name(wav_path.stem + "_mel.png")
+
             st.image(mel_path)
         else:
             S = librosa.feature.melspectrogram(y=y, sr=sr, n_fft=1024, hop_length=256, n_mels=128)
