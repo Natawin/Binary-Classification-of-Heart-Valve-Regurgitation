@@ -52,6 +52,7 @@ else:
             st.pyplot(fig)
 
     # Mel-Spectrogram
+    # Mel-Spectrogram
     with col2:
         st.subheader("🎛 Mel-Spectrogram")
         mel_path = wav_path.with_name(wav_path.stem + "_mel.png")
