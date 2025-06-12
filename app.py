@@ -16,12 +16,12 @@ DATA_DIR = BASE_DIR / "Sample Sound"
 CLASSES = ["mitral", "aortic", "tricuspid", "pulmonary"]
 valve_to_idx = {"mitral": 0, "aortic": 1, "tricuspid": 2, "pulmonary": 3}
 
-# ===== Load model =====
-model = load_model()
-
 # ===== Streamlit UI Config =====
 st.set_page_config(page_title="Heart Valve AI Production", layout="wide")
 st.title("💓 Heart Valve AI Demo (Full Production Version)")
+
+# ===== Load model หลัง set_page_config
+model = load_model()
 
 # ===== Sidebar =====
 selected_class = st.sidebar.selectbox("เลือก Valve Class:", CLASSES)
@@ -92,8 +92,8 @@ else:
     # ===== Predict Button =====
     if st.button("Predict Now 🚀"):
         if img_tensor is not None and valve_idx_tensor is not None:
-        
-            # 🟢 Debug จุดสำคัญ!
+
+            # 🔎 จุดสำคัญที่เราจะ Inspect
             st.write("===== INPUT DEBUG =====")
             st.write(f"img_tensor shape: {img_tensor.shape}")
             st.write(f"valve_idx_tensor: {valve_idx_tensor}")
@@ -110,4 +110,3 @@ else:
                 st.success("✅ Non-Regurgitation")
         else:
             st.warning("ยังไม่พบไฟล์ Mel-Spectrogram ที่จะใช้")
-
