@@ -54,7 +54,7 @@ else:
             output = model(img_tensor, valve_idx_tensor)
             prob = torch.sigmoid(output).item()
 
-        if prob > 0.7:
+        if prob > 0.9:
             st.error(f"❌ Abnormal")
         else:
             st.success(f"✅ Normal")
