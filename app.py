@@ -43,7 +43,7 @@ else:
     file_path = dict(all_files)[selected_file]
 
     # Generate สำหรับ Model (Grayscale 3 channel) และ สำหรับ Display (Color)
-    mel_image_rgb, mel_array = generate_mel_tensor(file_path)
+    mel_image_rgb = generate_mel_tensor(file_path)
     mel_display_image = generate_mel_display(file_path)
 
     # Plot
