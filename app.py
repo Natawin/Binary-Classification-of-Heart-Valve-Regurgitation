@@ -12,7 +12,8 @@ from model_loader import load_model
 from utils import generate_mel_image
 
 # ===== CONFIG =====
-DATA_DIR = Path("Sample Sound")
+BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = BASE_DIR / "Sample Sound"
 CLASSES = ["mitral", "aortic", "tricuspid", "pulmonary"]
 valve_to_idx = {v: i for i, v in enumerate(CLASSES)}
 
