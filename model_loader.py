@@ -1,10 +1,9 @@
 import os
-import torch
 import gdown
+import torch
 from model_class import MultiValveCNN
 
-# ====== CONFIG ======
-GOOGLE_DRIVE_FILE_ID = '16cImTqyHLkr07QtzDszwR5MvWrTmieMf'  # <<< 🔥 ใส่ File ID ของคุณตรงนี้
+GOOGLE_DRIVE_FILE_ID = '16cImTqyHLkr07QtzDszwR5MvWrTmieMf'
 MODEL_FILENAME = 'model_epoch_20.pth'
 
 def download_model():
