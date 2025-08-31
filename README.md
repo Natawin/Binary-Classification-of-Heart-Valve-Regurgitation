@@ -35,6 +35,7 @@ Users cannot upload their own recordings but can explore the model using the exa
 **Classification**: The AI model predicts whether regurgitation is present in the given valve recording.
 
 **Output**: Results indicate Normal or Regurgitation Detected, along with a confidence score.
+
 Example Output
 ```bash
 Valve: Mitral
