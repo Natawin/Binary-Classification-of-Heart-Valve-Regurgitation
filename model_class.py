@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch
 
+
 class MultiValveCNN(nn.Module):
     def __init__(self, num_valves=4):
         super().__init__()
@@ -28,3 +29,4 @@ class MultiValveCNN(nn.Module):
         all_feat = torch.cat((x_feat, v_feat), dim=1)
         out = self.fc(all_feat)
         return out
+
