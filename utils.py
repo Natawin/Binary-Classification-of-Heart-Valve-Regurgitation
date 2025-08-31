@@ -6,13 +6,11 @@ import matplotlib.pyplot as plt
 import torch
 import torchvision.transforms as transforms
 
-# ===== สำหรับ generate mel image แบบโชว์สี =====
 def generate_mel_image(wav_path):
     y, sr = librosa.load(wav_path, sr=None)
     S = librosa.feature.melspectrogram(y=y, sr=sr, n_fft=1024, hop_length=256, n_mels=128)
     S_dB = librosa.power_to_db(S, ref=np.max)
 
-    # วาด spectrogram ลง buffer
     fig, ax = plt.subplots(figsize=(4, 4))
     librosa.display.specshow(S_dB, sr=sr, x_axis=None, y_axis=None, cmap='magma')
     plt.axis('off')
@@ -23,7 +21,6 @@ def generate_mel_image(wav_path):
     image = Image.open(buf).convert('RGB')
     return image
 
-# ===== สำหรับ generate mel tensor เข้าโมเดล (Grayscale) =====
 def generate_mel_tensor(wav_path):
     y, sr = librosa.load(wav_path, sr=None)
     S = librosa.feature.melspectrogram(y=y, sr=sr, n_fft=1024, hop_length=256, n_mels=128)
@@ -40,3 +37,4 @@ def generate_mel_tensor(wav_path):
     image = np.stack([image, image, image], axis=-1)
     image = torch.tensor(image).permute(2, 0, 1).float()
     return image
+
