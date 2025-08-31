@@ -8,48 +8,35 @@ import streamlit as st
 from model_loader import load_model
 from utils import generate_mel_image
 
-# ===== CONFIG =====
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "Sample Sound"
 CLASSES = ["mitral", "aortic", "tricuspid", "pulmonary"]
 valve_to_idx = {v: i for i, v in enumerate(CLASSES)}
 
-# Load model
 model = load_model()
 
-# Streamlit config
 st.set_page_config(page_title="Heart Valve AI Production (Final Build)", layout="wide")
 st.title("💓 Heart Valve AI Production (Final Build)")
 
-# Sidebar: เลือก Valve Class
 selected_class = st.sidebar.selectbox("เลือก Valve Class:", CLASSES)
 
-# Load sub-class (Normal / Abnormal)
 normal_path = DATA_DIR / selected_class / "Normal"
 abnormal_path = DATA_DIR / selected_class / "Abnormal"
 
 normal_files = sorted(list(normal_path.glob("*.wav"))) if normal_path.exists() else []
 abnormal_files = sorted(list(abnormal_path.glob("*.wav"))) if abnormal_path.exists() else []
 
-# รวมทั้งหมด
 all_files = [(f"Normal/{f.name}", f) for f in normal_files] + [(f"Abnormal/{f.name}", f) for f in abnormal_files]
 
 if not all_files:
     st.warning("ไม่มีไฟล์ wav ใน class นี้")
 else:
-    # ให้เลือกไฟล์ย่อย
     filenames = [name for name, path in all_files]
     selected_file = st.selectbox("เลือกไฟล์:", filenames)
     file_path = dict(all_files)[selected_file]
-
-    # Generate Mel-Spectrogram (real-time)
     mel_image = generate_mel_image(file_path)
-
-    # หา Time Domain Image (ใช้ไฟล์ .td.png ที่เตรียมไว้)
     td_file = file_path.with_name(file_path.stem + "_td.png")
     td_image = Image.open(td_file) if td_file.exists() else None
-
-    # Plot
     col1, col2 = st.columns(2)
 
     with col1:
@@ -64,9 +51,8 @@ else:
         st.image(mel_image)
 
     st.divider()
-    st.subheader("🧪 AI Prediction")
+    st.subheader("AI Prediction")
 
-    # Preprocess + Predict
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
@@ -77,13 +63,13 @@ else:
     img_tensor = transform(mel_image).unsqueeze(0)
     valve_tensor = torch.tensor([valve_to_idx[selected_class]], dtype=torch.long)
 
-    if st.button("Predict Now 🚀"):
+    if st.button("Predict Now"):
         with torch.no_grad():
             output = model(img_tensor, valve_tensor)
             prob = torch.sigmoid(output).item()
 
-        # Hard decision
         if prob > 0.5:
             st.error("🔬 Regurgitation Detected (Abnormal)")
         else:
-            st.success("✅ Normal")
+            st.success("Normal")
+
