@@ -3,7 +3,7 @@ import gdown
 import torch
 from model_class import MultiValveCNN
 
-GOOGLE_DRIVE_FILE_ID = '16cImTqyHLkr07QtzDszwR5MvWrTmieMf'  # ใช้ของเดิมที่นายมี
+GOOGLE_DRIVE_FILE_ID = '16cImTqyHLkr07QtzDszwR5MvWrTmieMf'
 MODEL_FILENAME = 'model_epoch_20.pth'
 
 def download_model():
@@ -18,3 +18,4 @@ def load_model():
     model.load_state_dict(state_dict)
     model.eval()
     return model
+
